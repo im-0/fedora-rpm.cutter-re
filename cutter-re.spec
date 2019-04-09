@@ -1,6 +1,6 @@
 Name:           cutter-re
 Version:        1.8.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        GUI for radare2 reverse engineering framework
 
 # CC-BY-SA: src/img/icons/
@@ -9,6 +9,9 @@ License:        GPLv3 and CC-BY-SA and CC0
 
 URL:            https://cutter.re/
 Source0:        https://github.com/radareorg/cutter/archive/v%{version}/cutter-%{version}.tar.gz
+Patch1:         0001-Update-radare2-1381.patch
+Patch2:         0002-Update-radare2-and-adapt-Cutter-1406.patch
+Patch3:         0003-Update-r2-and-adapt-Cutter-1412.patch
 
 BuildRequires:  radare2-devel
 BuildRequires:  cmake
@@ -79,6 +82,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml
 
 
 %changelog
+* Tue Apr 09 2019 Lubomir Rintel <lkundrak@v3.sk> - 1.8.0-2
+- Update to radare2 3.4.1
+
 * Thu Mar 21 2019 Lubomir Rintel <lkundrak@v3.sk> - 1.8.0-1
 - Update to 1.8.0
 - Require hicolor-icon-theme

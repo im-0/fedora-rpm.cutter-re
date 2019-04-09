@@ -1,0 +1,121 @@
+From cedec2c8790b3df093e08e3a7bf41a9c992a8af9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=A4rkl?= <info@florianmaerkl.de>
+Date: Fri, 29 Mar 2019 18:11:41 +0100
+Subject: [PATCH 2/4] Update radare2 and adapt Cutter (#1406)
+
+* Update radare2 and adapt Cutter
+
+* Fix QByteArray creation in CutterCore::assemble()
+
+(cherry picked from commit 41af189312eaa1621db7a4acff57b123cc8dd423)
+---
+ radare2                               |  2 +-
+ src/core/Cutter.cpp                   | 36 ++++++++++++++++++++++-----
+ src/core/Cutter.h                     |  8 ++++--
+ src/dialogs/EditInstructionDialog.cpp |  6 +++--
+ 4 files changed, 41 insertions(+), 11 deletions(-)
+
+diff --git a/src/core/Cutter.cpp b/src/core/Cutter.cpp
+index 51c8c82..5958a3f 100644
+--- a/src/core/Cutter.cpp
++++ b/src/core/Cutter.cpp
+@@ -773,20 +773,26 @@ void CutterCore::setBBSize(int size)
+     setConfig("anal.bb.maxsize", size);
+ }
+ 
+-QString CutterCore::assemble(const QString &code)
++QByteArray CutterCore::assemble(const QString &code)
+ {
+     CORE_LOCK();
+     RAsmCode *ac = r_asm_massemble(core_->assembler, code.toUtf8().constData());
+-    QString hex(ac != nullptr ? ac->buf_hex : "");
++    QByteArray res;
++    if (ac && ac->bytes) {
++        res = QByteArray(reinterpret_cast<const char *>(ac->bytes), ac->len);
++    }
+     r_asm_code_free(ac);
+-    return hex;
++    return res;
+ }
+ 
+-QString CutterCore::disassemble(const QString &hex)
++QString CutterCore::disassemble(const QByteArray &data)
+ {
+     CORE_LOCK();
+-    RAsmCode *ac = r_asm_mdisassemble_hexstr(core_->assembler, NULL, hex.toUtf8().constData());
+-    QString code = QString(ac != nullptr ? ac->buf_asm : "");
++    RAsmCode *ac = r_asm_mdisassemble(core_->assembler, reinterpret_cast<const ut8 *>(data.constData()), data.length());
++    QString code;
++    if (ac && ac->assembly) {
++        code = QString::fromUtf8(ac->assembly);
++    }
+     r_asm_code_free(ac);
+     return code;
+ }
+@@ -2575,6 +2581,24 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
+     return r;
+ }
+ 
++QByteArray CutterCore::hexStringToBytes(const QString &hex)
++{
++    QByteArray hexChars = hex.toUtf8();
++    QByteArray bytes;
++    bytes.reserve(hexChars.length() / 2);
++    int size = r_hex_str2bin(hexChars.constData(), reinterpret_cast<ut8 *>(bytes.data()));
++    bytes.resize(size);
++    return bytes;
++}
++
++QString CutterCore::bytesToHexString(const QByteArray &bytes)
++{
++    QByteArray hex;
++    hex.resize(bytes.length() * 2);
++    r_hex_bin2str(reinterpret_cast<const ut8 *>(bytes.constData()), bytes.size(), hex.data());
++    return QString::fromUtf8(hex);
++}
++
+ void CutterCore::loadScript(const QString &scriptname)
+ {
+     r_core_task_sync_begin(core_);
+diff --git a/src/core/Cutter.h b/src/core/Cutter.h
+index c886cf0..da84152 100644
+--- a/src/core/Cutter.h
++++ b/src/core/Cutter.h
+@@ -185,10 +185,14 @@ public:
+     QList<QString> getColorThemes();
+ 
+     /* Assembly related methods */
+-    QString assemble(const QString &code);
+-    QString disassemble(const QString &hex);
++    QByteArray assemble(const QString &code);
++    QString disassemble(const QByteArray &data);
+     QString disassembleSingleInstruction(RVA addr);
+     QList<DisassemblyLine> disassembleLines(RVA offset, int lines);
++
++    static QByteArray hexStringToBytes(const QString &hex);
++    static QString bytesToHexString(const QByteArray &bytes);
++
+     void setCPU(QString arch, QString cpu, int bits);
+     void setEndianness(bool big);
+     void setBBSize(int size);
+diff --git a/src/dialogs/EditInstructionDialog.cpp b/src/dialogs/EditInstructionDialog.cpp
+index 2dfe8be..5993696 100644
+--- a/src/dialogs/EditInstructionDialog.cpp
++++ b/src/dialogs/EditInstructionDialog.cpp
+@@ -45,9 +45,11 @@ void EditInstructionDialog::updatePreview(const QString &input)
+         ui->instructionLabel->setText("");
+         return;
+     } else if (editMode == EDIT_BYTES) {
+-        result = Core()->disassemble(input).trimmed();
++        QByteArray data = CutterCore::hexStringToBytes(input);
++        result = Core()->disassemble(data).trimmed();
+     } else if (editMode == EDIT_TEXT) {
+-        result = Core()->assemble(input).trimmed();
++        QByteArray data = Core()->assemble(input);
++        result = CutterCore::bytesToHexString(data).trimmed();
+     }
+ 
+     if (result.isEmpty() || result.contains("\n")) {
+-- 
+2.21.0
+
