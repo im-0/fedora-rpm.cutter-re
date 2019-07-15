@@ -79,7 +79,7 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml
 
 
 %changelog
-* Jul 15 2019 Riccardo Schirone <rschirone91@gmail.com> - 1.8.3-1
+* Mon Jul 15 2019 Riccardo Schirone <rschirone91@gmail.com> - 1.8.3-1
 - rebase to cutter 1.8.3
 
 * Wed Jun 26 2019 Riccardo Schirone <rschirone91@gmail.com> - 1.8.0-4
