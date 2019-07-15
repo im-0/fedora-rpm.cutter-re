@@ -1,5 +1,5 @@
 Name:           cutter-re
-Version:        1.8.0
+Version:        1.8.3
 Release:        4%{?dist}
 Summary:        GUI for radare2 reverse engineering framework
 
@@ -9,11 +9,8 @@ License:        GPLv3 and CC-BY-SA and CC0
 
 URL:            https://cutter.re/
 Source0:        https://github.com/radareorg/cutter/archive/v%{version}/cutter-%{version}.tar.gz
-Patch1:         0001-Update-radare2-1381.patch
-Patch2:         0002-Update-radare2-and-adapt-Cutter-1406.patch
-Patch3:         0003-Update-r2-and-adapt-Cutter-1412.patch
 
-BuildRequires:  radare2-devel
+BuildRequires:  radare2-devel >= 3.6.0
 BuildRequires:  cmake
 BuildRequires:  gcc-c++
 BuildRequires:  make
