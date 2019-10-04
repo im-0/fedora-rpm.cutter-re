@@ -1,6 +1,6 @@
 Name:           cutter-re
 Version:        1.10.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        GUI for radare2 reverse engineering framework
 
 # CC-BY-SA: src/img/icons/
@@ -23,6 +23,7 @@ BuildRequires:  libappstream-glib
 %ifarch %{qt5_qtwebengine_arches}
 BuildRequires:  qt5-qtwebengine-devel
 %endif
+BuildRequires:  rsync
 Requires:       python3-jupyter-client
 Requires:       python3-notebook
 Requires:       hicolor-icon-theme
@@ -32,6 +33,23 @@ Cutter is a Qt and C++ GUI for radare2. Its goal is making an advanced,
 customizable and FOSS reverse-engineering platform while keeping the user
 experience at mind. Cutter is created by reverse engineers for reverse
 engineers.
+
+
+%package devel
+Summary:        Development files for the cutter-re package
+Requires:       %{name}%{?_isa} = %{version}-%{release}
+Requires:       radare2-devel >= 4.2.1
+Requires:       qt5-devel
+Requires:       python3-devel
+Requires:       qt5-qtsvg-devel
+Requires:       file-devel
+%ifarch %{qt5_qtwebengine_arches}
+Requires:       qt5-qtwebengine-devel
+%endif
+
+%description devel
+Development files for the cutter-re package. Required for building
+plugins.
 
 
 %prep
@@ -65,6 +83,17 @@ mkdir -p %{buildroot}%{_datadir}/icons/hicolor/scalable/apps
 install -pm644 src/img/cutter.svg \
         %{buildroot}%{_datadir}/icons/hicolor/scalable/apps
 
+mkdir -p %{buildroot}%{_includedir}/%{name}
+rsync \
+        --verbose \
+        --archive \
+        --prune-empty-dirs \
+        --include "*/" \
+        --include "*.h" \
+        --exclude "*" \
+        src/ \
+        %{buildroot}%{_includedir}/%{name}/
+
 
 %check
 appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml
@@ -79,7 +108,14 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml
 %doc README.md
 
 
+%files devel
+%{_includedir}/%{name}
+
+
 %changelog
+* Sat Apr 18 2020 Ivan Mironov <mironov.ivan@gmail.com> - 1.10.1-4
+- Add -devel subpackage for building plugins
+
 * Wed Feb 5 2020 Riccardo Schirone <rschirone91@gmail.com> - 1.10.1-3
 - Rebuild with new radare2
 
