@@ -1,6 +1,6 @@
 Name:           cutter-re
 Version:        1.9.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        GUI for radare2 reverse engineering framework
 
 # CC-BY-SA: src/img/icons/
@@ -79,6 +79,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml
 
 
 %changelog
+* Fri Oct 11 2019 Riccardo Schirone <rschirone91@gmail.com> - 1.9.0-1
+- Rebuilt for radare2-3.9.0-3
+
 * Mon Sep 30 2019 Riccardo Schirone <rschirone91@gmail.com> - 1.9.0-1
 - rebase to cutter 1.9.0
 
