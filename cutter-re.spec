@@ -79,7 +79,7 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml
 
 
 %changelog
-* Fri Oct 11 2019 Riccardo Schirone <rschirone91@gmail.com> - 1.9.0-1
+* Fri Oct 11 2019 Riccardo Schirone <rschirone91@gmail.com> - 1.9.0-2
 - Rebuilt for radare2-3.9.0-3
 
 * Mon Sep 30 2019 Riccardo Schirone <rschirone91@gmail.com> - 1.9.0-1
