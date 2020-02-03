@@ -1,6 +1,6 @@
 Name:           cutter-re
-Version:        1.9.0
-Release:        3%{?dist}
+Version:        1.10.1
+Release:        1%{?dist}
 Summary:        GUI for radare2 reverse engineering framework
 
 # CC-BY-SA: src/img/icons/
@@ -10,7 +10,7 @@ License:        GPLv3 and CC-BY-SA and CC0
 URL:            https://cutter.re/
 Source0:        https://github.com/radareorg/cutter/archive/v%{version}/cutter-%{version}.tar.gz
 
-BuildRequires:  radare2-devel >= 3.8.0
+BuildRequires:  radare2-devel >= 4.2.1
 BuildRequires:  cmake
 BuildRequires:  gcc-c++
 BuildRequires:  make
@@ -79,6 +79,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml
 
 
 %changelog
+* Mon Feb 3 2020 Riccardo Schirone <rschirone91@gmail.com> - 1.10.1-1
+- Rebase to cutter 1.10.1
+
 * Tue Jan 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.9.0-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
 
