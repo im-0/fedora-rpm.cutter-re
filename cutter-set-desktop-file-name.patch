@@ -1,0 +1,11 @@
+diff -up cutter-1.10.1/src/CutterApplication.cpp.orig cutter-1.10.1/src/CutterApplication.cpp
+--- cutter-1.10.1/src/CutterApplication.cpp.orig	2020-02-05 15:58:22.792101638 +0100
++++ cutter-1.10.1/src/CutterApplication.cpp	2020-02-05 15:58:52.158981767 +0100
+@@ -33,6 +33,7 @@ CutterApplication::CutterApplication(int
+ {
+     // Setup application information
+     setApplicationVersion(CUTTER_VERSION_FULL);
++    setDesktopFileName("org.radare.Cutter");
+     setWindowIcon(QIcon(":/img/cutter.svg"));
+     setAttribute(Qt::AA_UseHighDpiPixmaps);
+     setLayoutDirection(Qt::LeftToRight);

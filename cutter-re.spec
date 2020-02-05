@@ -9,6 +9,7 @@ License:        GPLv3 and CC-BY-SA and CC0
 
 URL:            https://cutter.re/
 Source0:        https://github.com/radareorg/cutter/archive/v%{version}/cutter-%{version}.tar.gz
+Patch1:         cutter-set-desktop-file-name.patch
 
 BuildRequires:  radare2-devel >= 4.2.1
 BuildRequires:  cmake
