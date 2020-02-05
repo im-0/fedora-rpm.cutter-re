@@ -80,10 +80,10 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml
 
 
 %changelog
-* Wed Feb 3 2020 Riccardo Schirone <rschirone91@gmail.com> - 1.10.1-3
+* Wed Feb 5 2020 Riccardo Schirone <rschirone91@gmail.com> - 1.10.1-3
 - Rebuild with new radare2
 
-* Wed Feb 3 2020 Riccardo Schirone <rschirone91@gmail.com> - 1.10.1-2
+* Wed Feb 5 2020 Riccardo Schirone <rschirone91@gmail.com> - 1.10.1-2
 - Fix the main window icon
 
 * Mon Feb 3 2020 Riccardo Schirone <rschirone91@gmail.com> - 1.10.1-1
