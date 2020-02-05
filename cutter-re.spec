@@ -1,6 +1,6 @@
 Name:           cutter-re
 Version:        1.10.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        GUI for radare2 reverse engineering framework
 
 # CC-BY-SA: src/img/icons/
@@ -9,7 +9,8 @@ License:        GPLv3 and CC-BY-SA and CC0
 
 URL:            https://cutter.re/
 Source0:        https://github.com/radareorg/cutter/archive/v%{version}/cutter-%{version}.tar.gz
-Patch1:         cutter-set-desktop-file-name.patch
+Source1:        cutter-re.desktop
+Source2:        cutter-re.appdata.xml
 
 BuildRequires:  radare2-devel >= 4.2.1
 BuildRequires:  cmake
@@ -51,19 +52,19 @@ make %{?_smp_mflags}
 
 %install
 mkdir -p %{buildroot}%{_bindir}
-install build/Cutter %{buildroot}%{_bindir}
+install build/Cutter %{buildroot}%{_bindir}/cutter-re
 
 mkdir -p %{buildroot}%{_datadir}/applications
 desktop-file-install --dir=%{buildroot}%{_datadir}/applications \
-        src/org.radare.Cutter.desktop
+        %{SOURCE1}
 
 mkdir -p %{buildroot}%{_metainfodir}
-install -pm644 src/org.radare.Cutter.appdata.xml \
+install -pm644 %{SOURCE2} \
         %{buildroot}%{_metainfodir}
 
 mkdir -p %{buildroot}%{_datadir}/icons/hicolor/scalable/apps
 install -pm644 src/img/cutter.svg \
-        %{buildroot}%{_datadir}/icons/hicolor/scalable/apps
+        %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/cutter-re.svg
 
 
 %check
@@ -71,7 +72,7 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml
 
 
 %files
-%{_bindir}/Cutter
+%{_bindir}/cutter-re
 %{_datadir}/applications/*.desktop
 %{_metainfodir}/*.appdata.xml
 %{_datadir}/icons/hicolor/scalable/apps/*.svg
@@ -80,6 +81,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml
 
 
 %changelog
+* Wed Feb 5 2020 Riccardo Schirone <rschirone91@gmail.com> - 1.10.1-4
+- Just use the right desktop file name and app metadata instead of messing with cutter source code
+
 * Wed Feb 5 2020 Riccardo Schirone <rschirone91@gmail.com> - 1.10.1-3
 - Rebuild with new radare2
 
