@@ -1,6 +1,6 @@
 Name:           cutter-re
 Version:        1.10.1
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        GUI for radare2 reverse engineering framework
 
 # CC-BY-SA: src/img/icons/
@@ -10,8 +10,10 @@ License:        GPLv3 and CC-BY-SA and CC0
 URL:            https://cutter.re/
 Source0:        https://github.com/radareorg/cutter/archive/v%{version}/cutter-%{version}.tar.gz
 Patch1:         cutter-set-desktop-file-name.patch
+Patch2:         Refactor-hashes-in-dashboard-to-support-newly-added-hashes.patch
+Patch3:         refactor-r_anal_function_count_edges.patch
 
-BuildRequires:  radare2-devel >= 4.2.1
+BuildRequires:  radare2-devel >= 4.4.0
 BuildRequires:  cmake
 BuildRequires:  gcc-c++
 BuildRequires:  make
@@ -38,7 +40,7 @@ engineers.
 %package devel
 Summary:        Development files for the cutter-re package
 Requires:       %{name}%{?_isa} = %{version}-%{release}
-Requires:       radare2-devel >= 4.2.1
+Requires:       radare2-devel >= 4.4.0
 Requires:       qt5-devel
 Requires:       python3-devel
 Requires:       qt5-qtsvg-devel
@@ -117,6 +119,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml
 
 
 %changelog
+* Sat Apr 18 2020 Ivan Mironov <mironov.ivan@gmail.com> - 1.10.1-5
+- Support building with radare2 4.4.0
+
 * Sat Apr 18 2020 Ivan Mironov <mironov.ivan@gmail.com> - 1.10.1-4
 - Add -devel subpackage for building plugins
 - Add `/usr/lib*/cutter-re` to plugin search path

@@ -1,0 +1,217 @@
+diff --git a/src/core/Cutter.cpp b/src/core/Cutter.cpp
+index 26adeeceb669..1f27f6be1eb4 100644
+--- a/src/core/Cutter.cpp
++++ b/src/core/Cutter.cpp
+@@ -535,7 +535,7 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
+     }
+ 
+     ut64 hashLimit = getConfigut64("cfg.hashlimit");
+-    r_bin_file_hash(core->bin, hashLimit, path.toUtf8().constData(), NULL);
++    r_bin_file_compute_hashes(core->bin, hashLimit);
+ 
+     fflush(stdout);
+     return true;
+diff --git a/src/widgets/Dashboard.cpp b/src/widgets/Dashboard.cpp
+index ed369020ab58..f345f2cb5715 100644
+--- a/src/widgets/Dashboard.cpp
++++ b/src/widgets/Dashboard.cpp
+@@ -75,9 +75,42 @@ void Dashboard::updateContents()
+     setBool(this->ui->relocsEdit, item2, "relocs");
+ 
+     // Add file hashes, analysis info and libraries
++
+     QJsonObject hashes = Core()->cmdj("itj").object();
+-    setPlainText(ui->md5Edit, hashes["md5"].toString());
+-    setPlainText(ui->sha1Edit, hashes["sha1"].toString());
++
++    // Add hashes as a pair of Hash Name : Hash Value.
++    for (const QString& key : hashes.keys()) {
++        // Create a bold QString with the hash name uppercased
++        QString label = QString("<b>%1:</b>").arg(key.toUpper());
++
++        // Define a Read-Only line edit to display the hash value
++        QLineEdit *hashLineEdit = new QLineEdit();
++        hashLineEdit->setReadOnly(true);
++        hashLineEdit->setText(hashes.value(key).toString());
++        // Set cursor position to begining to avoid long hashes (e.g sha256)
++        // to look truncated at the begining
++        hashLineEdit->setCursorPosition(0);
++
++        // Add both controls to a form layout in a single row
++        ui->formLayout_2->addRow(new QLabel(label), hashLineEdit);
++    }
++
++    // Add the Entropy value of the file to the dashboard
++    {
++        // Scope for TempConfig
++        TempConfig tempConfig;
++        tempConfig.set("io.va", false);
++
++        // Calculate the Entropy of the entire binary from offset 0 to $s
++        // where $s is the size of the entire file
++        QString entropy = Core()->cmd("ph entropy $s @ 0").trimmed();
++
++        // Define a Read-Only line edit to display the entropy value
++        QLineEdit *entropyLineEdit = new QLineEdit();
++        entropyLineEdit->setReadOnly(true);
++        entropyLineEdit->setText(entropy);
++        ui->formLayout_2->addRow(new QLabel(tr("<b>Entropy:</b>")), entropyLineEdit);
++    }
+ 
+     QJsonObject analinfo = Core()->cmdj("aaij").object();
+     setPlainText(ui->functionsLineEdit, QString::number(analinfo["fcns"].toInt()));
+@@ -123,15 +156,6 @@ void Dashboard::updateContents()
+     QSpacerItem *spacer = new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding);
+     ui->verticalLayout_2->addSpacerItem(spacer);
+ 
+-    // Add entropy value
+-    {
+-        // Scope for TempConfig
+-        TempConfig tempConfig;
+-        tempConfig.set("io.va", false);
+-        QString entropy = Core()->cmd("ph entropy $s @ 0").trimmed();
+-        ui->lblEntropy->setText(entropy);
+-    }
+-
+ 
+     // Get stats for the graphs
+     QStringList stats = Core()->getStats();
+diff --git a/src/widgets/Dashboard.ui b/src/widgets/Dashboard.ui
+index 0c0203565b32..b599e78274ba 100644
+--- a/src/widgets/Dashboard.ui
++++ b/src/widgets/Dashboard.ui
+@@ -56,7 +56,7 @@
+          <x>0</x>
+          <y>0</y>
+          <width>1055</width>
+-         <height>982</height>
++         <height>980</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+@@ -1017,7 +1017,7 @@
+             </widget>
+            </item>
+            <item>
+-            <layout class="QHBoxLayout" name="horizontalLayout_3">
++            <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="2,1">
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+@@ -1058,12 +1058,15 @@
+             </layout>
+            </item>
+            <item>
+-            <layout class="QHBoxLayout" name="horizontalLayout_4">
++            <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="2,1">
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_4">
++               <property name="rightMargin">
++                <number>5</number>
++               </property>
+                <item>
+                 <layout class="QFormLayout" name="formLayout_2">
+                  <property name="fieldGrowthPolicy">
+@@ -1075,99 +1078,6 @@
+                  <property name="verticalSpacing">
+                   <number>3</number>
+                  </property>
+-                 <item row="0" column="0">
+-                  <widget class="QLabel" name="label_32">
+-                   <property name="font">
+-                    <font>
+-                     <weight>75</weight>
+-                     <bold>true</bold>
+-                    </font>
+-                   </property>
+-                   <property name="text">
+-                    <string>MD5:</string>
+-                   </property>
+-                   <property name="textInteractionFlags">
+-                    <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+-                   </property>
+-                  </widget>
+-                 </item>
+-                 <item row="0" column="1">
+-                  <widget class="QLineEdit" name="md5Edit">
+-                   <property name="text">
+-                    <string/>
+-                   </property>
+-                   <property name="frame">
+-                    <bool>false</bool>
+-                   </property>
+-                   <property name="readOnly">
+-                    <bool>true</bool>
+-                   </property>
+-                  </widget>
+-                 </item>
+-                 <item row="1" column="0">
+-                  <widget class="QLabel" name="label_33">
+-                   <property name="font">
+-                    <font>
+-                     <weight>75</weight>
+-                     <bold>true</bold>
+-                    </font>
+-                   </property>
+-                   <property name="text">
+-                    <string>SHA1:</string>
+-                   </property>
+-                   <property name="textInteractionFlags">
+-                    <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+-                   </property>
+-                  </widget>
+-                 </item>
+-                 <item row="1" column="1">
+-                  <widget class="QLineEdit" name="sha1Edit">
+-                   <property name="text">
+-                    <string/>
+-                   </property>
+-                   <property name="frame">
+-                    <bool>false</bool>
+-                   </property>
+-                   <property name="readOnly">
+-                    <bool>true</bool>
+-                   </property>
+-                  </widget>
+-                 </item>
+-                 <item row="2" column="0">
+-                  <widget class="QLabel" name="label_8">
+-                   <property name="sizePolicy">
+-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+-                     <horstretch>0</horstretch>
+-                     <verstretch>0</verstretch>
+-                    </sizepolicy>
+-                   </property>
+-                   <property name="font">
+-                    <font>
+-                     <weight>75</weight>
+-                     <bold>true</bold>
+-                    </font>
+-                   </property>
+-                   <property name="text">
+-                    <string>Entropy:</string>
+-                   </property>
+-                   <property name="textInteractionFlags">
+-                    <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+-                   </property>
+-                  </widget>
+-                 </item>
+-                 <item row="2" column="1">
+-                  <widget class="QLabel" name="lblEntropy">
+-                   <property name="sizePolicy">
+-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+-                     <horstretch>0</horstretch>
+-                     <verstretch>0</verstretch>
+-                    </sizepolicy>
+-                   </property>
+-                   <property name="text">
+-                    <string notr="true"/>
+-                   </property>
+-                  </widget>
+-                 </item>
+                 </layout>
+                </item>
+                <item>
