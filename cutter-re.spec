@@ -59,11 +59,15 @@ plugins.
 %build
 mkdir build
 cd build
+%cmake \
+        -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE \
+        -DCUTTER_EXTRA_PLUGIN_DIRS=%{_libdir}/%{name} \
 %ifarch %{qt5_qtwebengine_arches}
-%cmake -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE -DCUTTER_ENABLE_QTWEBENGINE=ON ../src
+        -DCUTTER_ENABLE_QTWEBENGINE=ON \
 %else
-%cmake -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE -DCUTTER_ENABLE_QTWEBENGINE=OFF ../src
+        -DCUTTER_ENABLE_QTWEBENGINE=OFF \
 %endif
+        ../src
 make %{?_smp_mflags}
 
 
@@ -115,6 +119,7 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml
 %changelog
 * Sat Apr 18 2020 Ivan Mironov <mironov.ivan@gmail.com> - 1.10.1-4
 - Add -devel subpackage for building plugins
+- Add `/usr/lib*/cutter-re` to plugin search path
 
 * Wed Feb 5 2020 Riccardo Schirone <rschirone91@gmail.com> - 1.10.1-3
 - Rebuild with new radare2
