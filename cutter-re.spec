@@ -2,7 +2,7 @@
 
 Name:           cutter-re
 Version:        1.11.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        GUI for radare2 reverse engineering framework
 
 # CC-BY-SA: src/img/icons/
@@ -56,7 +56,7 @@ tar --strip-component=1 -xvf %{SOURCE3} -C src/translations
 
 
 %build
-%cmake src
+%cmake -DCUTTER_EXTRA_PLUGIN_DIRS=%{_libdir}/cutter src
 %cmake_build
 
 
@@ -101,6 +101,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml
 
 
 %changelog
+* Fri Aug 07 2020 Ivan Mironov <mironov.ivan@gmail.com> - 1.11.0-3
+- Add `/usr/lib*/cutter` to plugin search paths
+
 * Mon Jul 27 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.11.0-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
 
