@@ -1,6 +1,6 @@
 Name:           cutter-re
-Version:        1.10.1
-Release:        5%{?dist}
+Version:        1.10.2
+Release:        1%{?dist}
 Summary:        GUI for radare2 reverse engineering framework
 
 # CC-BY-SA: src/img/icons/
@@ -11,6 +11,8 @@ URL:            https://cutter.re/
 Source0:        https://github.com/radareorg/cutter/archive/v%{version}/cutter-%{version}.tar.gz
 Source1:        cutter-re.desktop
 Source2:        cutter-re.appdata.xml
+
+Patch0:         cutter-re-fcn-function-rename.patch
 
 BuildRequires:  radare2-devel >= 4.4.0
 BuildRequires:  cmake
@@ -81,6 +83,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml
 
 
 %changelog
+* Tue May 5 2020 Riccardo Schirone <rschirone91@gmail.com> - 1.10.2-1
+- Rebase to upstream version 1.10.2
+
 * Tue May 5 2020 Riccardo Schirone <rschirone91@gmail.com> - 1.10.1-5
 - Re-build for new radare2 release
 
