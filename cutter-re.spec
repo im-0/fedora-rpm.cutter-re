@@ -1,6 +1,6 @@
 Name:           cutter-re
 Version:        1.10.1
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        GUI for radare2 reverse engineering framework
 
 # CC-BY-SA: src/img/icons/
@@ -12,7 +12,7 @@ Source0:        https://github.com/radareorg/cutter/archive/v%{version}/cutter-%
 Source1:        cutter-re.desktop
 Source2:        cutter-re.appdata.xml
 
-BuildRequires:  radare2-devel >= 4.2.1
+BuildRequires:  radare2-devel >= 4.4.0
 BuildRequires:  cmake
 BuildRequires:  gcc-c++
 BuildRequires:  make
@@ -81,6 +81,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml
 
 
 %changelog
+* Tue May 5 2020 Riccardo Schirone <rschirone91@gmail.com> - 1.10.1-5
+- Re-build for new radare2 release
+
 * Wed Feb 5 2020 Riccardo Schirone <rschirone91@gmail.com> - 1.10.1-4
 - Just use the right desktop file name and app metadata instead of messing with cutter source code
 
