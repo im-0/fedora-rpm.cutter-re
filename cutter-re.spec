@@ -1,6 +1,8 @@
+%global         cutter_translations_commit d576ccc6bf929f69b079e1cca0cd37b444b78314
+
 Name:           cutter-re
-Version:        1.10.2
-Release:        2%{?dist}
+Version:        1.11.0
+Release:        1%{?dist}
 Summary:        GUI for radare2 reverse engineering framework
 
 # CC-BY-SA: src/img/icons/
@@ -11,18 +13,20 @@ URL:            https://cutter.re/
 Source0:        https://github.com/radareorg/cutter/archive/v%{version}/cutter-%{version}.tar.gz
 Source1:        cutter-re.desktop
 Source2:        cutter-re.appdata.xml
+Source3:        https://github.com/radareorg/cutter-translations/archive/%{cutter_translations_commit}.tar.gz
 
-Patch0:         cutter-re-fcn-function-rename.patch
-
-BuildRequires:  radare2-devel >= 4.4.0
+BuildRequires:  radare2-devel >= 4.5.0
 BuildRequires:  cmake
 BuildRequires:  gcc-c++
 BuildRequires:  make
+BuildRequires:  kf5-syntax-highlighting-devel
 BuildRequires:  python3-devel
 BuildRequires:  qt5-qtsvg-devel
 BuildRequires:  file-devel
 BuildRequires:  desktop-file-utils
 BuildRequires:  libappstream-glib
+BuildRequires:  graphviz-devel
+BuildRequires:  qt5-linguist
 %ifarch %{qt5_qtwebengine_arches}
 BuildRequires:  qt5-qtwebengine-devel
 %endif
@@ -37,26 +41,32 @@ experience at mind. Cutter is created by reverse engineers for reverse
 engineers.
 
 
+%package devel
+Summary:        Development files for the cutter-re package
+Requires:       %{name}%{?_isa} = %{version}-%{release}
+
+%description devel
+Development files for the cutter-re package. See cutter-re package for more
+information.
+
+
 %prep
 %autosetup -p1 -n cutter-%{version}
+tar --strip-component=1 -xvf %{SOURCE3} -C src/translations
 
 
 %build
-mkdir build
-cd build
-%ifarch %{qt5_qtwebengine_arches}
-%cmake -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE -DCUTTER_ENABLE_QTWEBENGINE=ON ../src
-%else
-%cmake -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE -DCUTTER_ENABLE_QTWEBENGINE=OFF ../src
-%endif
-make %{?_smp_mflags}
+%cmake src
+%cmake_build
 
 
 %install
-mkdir -p %{buildroot}%{_bindir}
-install build/Cutter %{buildroot}%{_bindir}/cutter-re
+%cmake_install
+mv %{buildroot}%{_bindir}/Cutter %{buildroot}%{_bindir}/cutter-re
 
+# replace default .desktop file with our own, to use cutter-re name
 mkdir -p %{buildroot}%{_datadir}/applications
+rm %{buildroot}%{_datadir}/applications/org.radare.Cutter.desktop
 desktop-file-install --dir=%{buildroot}%{_datadir}/applications \
         %{SOURCE1}
 
@@ -64,10 +74,11 @@ mkdir -p %{buildroot}%{_metainfodir}
 install -pm644 %{SOURCE2} \
         %{buildroot}%{_metainfodir}
 
-mkdir -p %{buildroot}%{_datadir}/icons/hicolor/scalable/apps
-install -pm644 src/img/cutter.svg \
-        %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/cutter-re.svg
+# rename cutter svg icon to cutter-re
+mv %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/{cutter,cutter-re}.svg
 
+# make sure CMake files used to find cutter development files reference cutter-re and not Cutter
+sed -i 's/bin\/Cutter/bin\/cutter-re/g' %{buildroot}%{_libdir}/Cutter/CutterTargets-noconfig.cmake
 
 %check
 appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml
@@ -76,13 +87,26 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml
 %files
 %{_bindir}/cutter-re
 %{_datadir}/applications/*.desktop
+%{_datadir}/RadareOrg/Cutter/translations/*.qm
 %{_metainfodir}/*.appdata.xml
 %{_datadir}/icons/hicolor/scalable/apps/*.svg
 %license COPYING src/img/icons/Iconic-LICENSE
 %doc README.md
 
 
+%files devel
+%{_includedir}/cutter
+%{_libdir}/Cutter/*.cmake
+%dir %{_libdir}/Cutter
+
+
 %changelog
+* Mon Jul 27 2020 Riccardo Schirone <rschirone91@gmail.com> - 1.11.0-1
+- Bump to upstream version 1.11.0-1 (Thanks to Michal Ambroz, changes mostly
+  taken from https://src.fedoraproject.org/rpms/cutter-re/pull-request/2#request_diff)
+- Add cutter translations
+- Provide -devel sub package to allow compilation of cutter plugins
+
 * Fri May 8 2020 Riccardo Schirone <rschirone91@gmail.com> - 1.10.2-2
 - Just re-build
 
