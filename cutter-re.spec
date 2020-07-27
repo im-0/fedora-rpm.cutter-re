@@ -2,7 +2,7 @@
 
 Name:           cutter-re
 Version:        1.11.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        GUI for radare2 reverse engineering framework
 
 # CC-BY-SA: src/img/icons/
@@ -101,6 +101,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml
 
 
 %changelog
+* Mon Jul 27 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.11.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
+
 * Mon Jul 27 2020 Riccardo Schirone <rschirone91@gmail.com> - 1.11.0-1
 - Bump to upstream version 1.11.0-1 (Thanks to Michal Ambroz, changes mostly
   taken from https://src.fedoraproject.org/rpms/cutter-re/pull-request/2#request_diff)
